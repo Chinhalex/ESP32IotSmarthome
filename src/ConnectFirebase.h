@@ -101,18 +101,17 @@ void readTemp(String quserid)
 }
 void TurnLight(String quserid)
 {
-    int i;
-    for (i = 0; i < 3; i++)
-    { 
-      led_gpio = i;
-      pinMode(led_gpio, OUTPUT);
-
-      String urlDevice = String("Users/") + quserid + String("/device/") + i + String ("/status");
-      if (Firebase.ready() && (millis() - sendDataPrevMillis > 1500 || sendDataPrevMillis == 0))
+     if (Firebase.ready() && (millis() - sendDataPrevMillis > 1500 || sendDataPrevMillis == 0))
       {
+        sendDataPrevMillis = millis();
+        int i;
+        for (i = 0; i < 3; i++)
+        { 
+          led_gpio = i;
+          pinMode(led_gpio, OUTPUT);
 
-          sendDataPrevMillis = millis();
-      
+          String urlDevice = String("Users/") + quserid + String("/device/") + i + String ("/status");
+        
           Firebase.RTDB.getString(&fbdo,urlDevice);
           led_state = fbdo.to<const char *>();
           

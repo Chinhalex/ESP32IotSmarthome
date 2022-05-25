@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"name": "ESP32SmartHome",
+			"path": ".."
+		},
+		{
+			"name": "ClearEEROM",
+			"path": "..\\..\\ClearEEROM"
+		},
+		{
+			"name": "TestESP",
+			"path": "..\\..\\TestESP"
+		},
+		{
+			"name": "Th_IOT",
+			"path": "..\\..\\Th_IOT"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"cmath": "cpp"
+		}
+	}
+}

@@ -29,8 +29,8 @@ void setup() {
   delay(1000);
   if(WiFi.waitForConnectResult()==WL_CONNECTED){
     Serial.println("CONNECTED");
-    //initLcd();
-    //initDHT(); //setup DHT temp 
+    initLcd();
+    initDHT(); //setup DHT temp 
     connectFirebase();
    
   }
@@ -51,9 +51,7 @@ void setup() {
     server.handleClient();
   }
     
-    xTaskCreate(readTemp,"DHT 11",1024,NULL,1,NULL);
-	xTaskCreate(TurnLight,"Turn Light",1024,NULL,2,NULL);
-	xTaskCreate(initInfrared,"Hong Ngoai",1024,NULL,3,NULL);
+ 	createTask();
 }
 
 void loop() {

@@ -14,7 +14,7 @@
 
 //Define Firebase Data object
 FirebaseData fbdo;
-FirebaseData stream;
+
 FirebaseAuth auth;
 FirebaseConfig config;
 int valueInfrared = 0;

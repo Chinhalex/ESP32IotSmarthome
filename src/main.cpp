@@ -2,11 +2,12 @@
 #include "EEPROM.h"
 #include "WiFi.h"
 #include "connectWiFi.h"
-#include <ConnectFirebase.h>
-
+//#include <ConnectFirebase.h>
+#include "firebase.h"
 char ssid[32];
 char pass[32];
 char quserid[32];
+
 
 void setup() {
   Serial.begin(115200);
@@ -28,8 +29,8 @@ void setup() {
   delay(1000);
   if(WiFi.waitForConnectResult()==WL_CONNECTED){
     Serial.println("CONNECTED");
-    initLcd();
-    initDHT(); //setup DHT temp 
+    //initLcd();
+    //initDHT(); //setup DHT temp 
     connectFirebase();
    
   }
@@ -48,14 +49,18 @@ void setup() {
     Serial.print(".");
     delay(100);
     server.handleClient();
-  }  
+  }
+    
+    xTaskCreate(readTemp,"DHT 11",1024,NULL,1,NULL);
+	xTaskCreate(TurnLight,"Turn Light",1024,NULL,2,NULL);
+	xTaskCreate(initInfrared,"Hong Ngoai",1024,NULL,3,NULL);
 }
 
 void loop() {
 
-  readTemp(quserid);
+ /*  readTemp(quserid);
   TurnLight(quserid);
-  initInfrared();
+  initInfrared(); */
   
 }
 

@@ -1,13 +1,16 @@
-#include <Arduino.h>
-#include "WiFi.h"
-#include "EEPROM.h" 
 #include <Firebase_ESP_Client.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
-#include <DHT_U.h>
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+
+LiquidCrystal_I2C lcd(0x27,16,2);
 
 #define DHT11_PIN 15
 #define DHTTYPE DHT11
+#define BUZZER_PIN 18
+#define INFRARED_PIN 34
 
 DHT dht(DHT11_PIN, DHTTYPE);
 
@@ -23,33 +26,41 @@ DHT dht(DHT11_PIN, DHTTYPE);
 // Insert RTDB URLefine the RTDB URL */
 #define DATABASE_URL "https://smarthomeapp-d2e21-default-rtdb.firebaseio.com/" 
 
-// /* 4. Define the user Email and password that alreadey registerd or added in your project */
-// #define USER_EMAIL "vovchinh@gmail.com"
-// #define USER_PASSWORD "123456789"
-
 //Define Firebase Data object
 FirebaseData fbdo;
 
 FirebaseAuth auth;
 FirebaseConfig config;
 
-unsigned long sendDataPrevMillis = 0;
+int valueInfrared = 0;
 String led_state = "";// LED State
 int led_gpio = 0;
 bool signupOK = false;
+
+void initLcd()
+{
+  lcd.init();                      // initialize the lcd 
+  lcd.backlight();
+}
+
+void initInfrared()
+{
+  valueInfrared = analogRead(INFRARED_PIN);
+  Serial.println (valueInfrared); //debug
+  if(valueInfrared <= 100)
+  {
+    digitalWrite (BUILTIN_LED, LOW); //led off
+    //delay(5000);
+  }
+  digitalWrite (BUILTIN_LED, HIGH); //led on - default
+  
+}
 void connectFirebase()
 {
-    
-    
     Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
     /* Assign the api key (required) */
     config.api_key = API_KEY;
 
-    // /* Assign the user sign in credentials */
-    // auth.user.email = USER_EMAIL;
-    // auth.user.password = USER_PASSWORD;
-
-    /* Assign the RTDB URL (required) */
     config.database_url = DATABASE_URL;
     /* Sign up */
     if (Firebase.signUp(&config, &auth, "", "")) {
@@ -73,59 +84,75 @@ void connectFirebase()
 }
 
 void initDHT() {
+  pinMode(BUZZER_PIN, OUTPUT);
   pinMode(DHT11_PIN, INPUT);
   dht.begin();
 
 }
-
 void readTemp(String quserid)
 {
     float temp = dht.readTemperature();
     float hum = dht.readHumidity();
+    if (temp > 30 )
+    {
+      digitalWrite(BUZZER_PIN, HIGH); // turn on
+      delay (5000);
+      digitalWrite(BUZZER_PIN, LOW);
+    }
     String urlReadTemp = String("Users/") + quserid + String("/DHT11/nhietdo");
     String urlReadHum  = String("Users/") + quserid + String("/DHT11/doam");
-    if (Firebase.ready() ) {
+    if (Firebase.ready() ) 
     {
-        if (Firebase.RTDB.setFloat(&fbdo, urlReadTemp , temp)){
-          Serial.print("nhiet do: ");
-          Serial.println(temp);
-        } 
-        if (Firebase.RTDB.setFloat(&fbdo, urlReadHum, hum)){
-          Serial.print("do am: ");
-          Serial.println(hum);
-        }
-        Serial.println();
-      delay(1000);
-    }
+      if (Firebase.RTDB.setFloat(&fbdo, urlReadTemp , temp)){
+        Serial.print("nhiet do: ");
+        Serial.println(temp);
+      } 
+      if (Firebase.RTDB.setFloat(&fbdo, urlReadHum, hum)){
+        Serial.print("do am: ");
+        Serial.println(hum);
+      }
+      Serial.println();
+    delay(1000);
+  }
+  lcd.clear();
+  // check whether the reading is successful or not
+  if (isnan(temp) || isnan(hum)) {
+    Serial.println("failed to lcd");
+    lcd.setCursor(0, 0);
+    lcd.print("Failed");
+  } else {
+    Serial.println("success to lcd");
+    lcd.setCursor(0, 0);  // display position
+    lcd.print("Temp: ");
+    lcd.print(temp);    // display the temperature
+    lcd.print(" C");
+    lcd.setCursor(0, 1);  // display position
+    lcd.print("Humi: ");
+    lcd.print(hum);      // display the humidity
+    lcd.print(" %");
   }
 }
 void TurnLight(String quserid)
 {
-     if (Firebase.ready() && (millis() - sendDataPrevMillis > 1500 || sendDataPrevMillis == 0))
+     if (Firebase.ready())
       {
-        sendDataPrevMillis = millis();
         int i;
-        for (i = 0; i < 3; i++)
+        for (i = 0; i < 5; i++)
         { 
           led_gpio = i;
           pinMode(led_gpio, OUTPUT);
-
           String urlDevice = String("Users/") + quserid + String("/device/") + i + String ("/status");
-        
-          Firebase.RTDB.getString(&fbdo,urlDevice);
-          led_state = fbdo.to<const char *>();
-          
-          if (led_state == "true") {
+          led_state = Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : "false" ;
+          if (led_gpio == i && led_state == "true") {
           Serial.println(String("ESP32-GPIO ") + i + String(" is ON"));
           digitalWrite(led_gpio, HIGH);
           }
-          else if (led_state == "false") {
+          else if (led_gpio == i && led_state == "false") {
           Serial.println(String("ESP32-GPIO ") + i + String(" is OFF"));
           digitalWrite(led_gpio, LOW);
           }
-      
           else {
-              Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, F("/led")) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
+              Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
           }
       }
       

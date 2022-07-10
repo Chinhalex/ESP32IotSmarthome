@@ -1,9 +1,7 @@
 #include <Arduino.h>
-#include <WebServer.h>
 #include "EEPROM.h"
 #include "WiFi.h"
 #include "connectWiFi.h"
-#include <Firebase_ESP_Client.h>
 #include <ConnectFirebase.h>
 
 char ssid[32];
@@ -30,7 +28,7 @@ void setup() {
   delay(1000);
   if(WiFi.waitForConnectResult()==WL_CONNECTED){
     Serial.println("CONNECTED");
-
+    initLcd();
     initDHT(); //setup DHT temp 
     connectFirebase();
    
@@ -51,14 +49,13 @@ void setup() {
     delay(100);
     server.handleClient();
   }  
-
-
 }
 
 void loop() {
 
   readTemp(quserid);
   TurnLight(quserid);
+  initInfrared();
   
 }
 

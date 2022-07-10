@@ -1,9 +1,5 @@
-#include <Arduino.h>
 #include "WiFi.h"
 #include "EEPROM.h" 
-
-
-
 #include "WebServer.h"
 
 WebServer server(80);
@@ -78,8 +74,6 @@ void setupAP(void)
   launchWeb();
   Serial.println("over");
 }
-
-
 
 
 void createWebServer()

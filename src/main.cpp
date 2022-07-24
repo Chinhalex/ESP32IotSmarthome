@@ -29,9 +29,16 @@ void setup() {
   delay(1000);
   if(WiFi.waitForConnectResult()==WL_CONNECTED){
     Serial.println("CONNECTED");
+    for (int i = 0; i <=5; i++)
+    {
+      pinMode(i, OUTPUT);
+    }
     initLcd();
     initDHT(); //setup DHT temp 
-    connectFirebase();
+    
+    
+    
+   // connectFirebase();
    
   }
   else{
@@ -42,24 +49,25 @@ void setup() {
   Serial.println();
   Serial.println("Waiting.");
   
-
-
   while ((WiFi.status() != WL_CONNECTED))
   {
     Serial.print(".");
     delay(100);
     server.handleClient();
-  }
-    
- 	createTask();
+  }  
+  xTaskCreate(TurnLight,"Light",8192,quserid,1,NULL);
+  xTaskCreate(initInfrared,"Motion",4096,NULL,1,NULL);
 }
 
 void loop() {
 
- /*  readTemp(quserid);
-  TurnLight(quserid);
-  initInfrared(); */
   
+  vTaskDelay(1000);
+  //readTemp(quserid);
+ /*  runInfrared();
+  readTemp(quserid);
+  TurnLight(quserid); */
+  //runInfrared();
 }
 
 

@@ -1,11 +1,14 @@
 #include "WiFi.h"
 #include "EEPROM.h" 
 #include "WebServer.h"
+#define BUZZER_PIN 18
 
 WebServer server(80);
 String content;
 String st;
 int statusCode;
+
+
 
 void createWebServer(void);
 void setupAP(void);
@@ -107,6 +110,12 @@ void createWebServer()
       String quserid=server.arg("userid");
       if (qsid.length() > 0 && qpass.length() > 0 && quserid.length() > 0) {
         Serial.println("clearing eeprom");
+
+        pinMode(BUZZER_PIN, OUTPUT);
+        digitalWrite(BUZZER_PIN, HIGH); // turn on
+        delay (3000);
+        digitalWrite(BUZZER_PIN, LOW);
+        
         for (int i = 0; i < 96; ++i) 
           EEPROM.write(i, 0);
         

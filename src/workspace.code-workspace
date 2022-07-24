@@ -20,7 +20,8 @@
 	"settings": {
 		"files.associations": {
 			"cmath": "cpp",
-			"*.tcc": "cpp"
+			"*.tcc": "cpp",
+			"functional": "cpp"
 		}
 	}
 }

@@ -2,7 +2,7 @@
 #include "EEPROM.h"
 #include "WiFi.h"
 #include "connectWiFi.h"
-#include "Firebase.h"
+#include "Fire.h"
 #include "Infrared.h"
 
 char ssid[32];
@@ -29,15 +29,16 @@ void setup() {
   delay(1000);
   if(WiFi.waitForConnectResult()==WL_CONNECTED){
     Serial.println("CONNECTED");
-    initLcd();
-    initDHT(); //setup DHT temp 
-    
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i <=5; i++)
     {
       pinMode(i, OUTPUT);
     }
+    initLcd();
+    initDHT(); //setup DHT temp 
     
-    connectFirebase();
+    
+    
+   // connectFirebase();
    
   }
   else{
@@ -48,23 +49,25 @@ void setup() {
   Serial.println();
   Serial.println("Waiting.");
   
-
-
   while ((WiFi.status() != WL_CONNECTED))
   {
     Serial.print(".");
     delay(100);
     server.handleClient();
   }  
+  xTaskCreate(TurnLight,"Light",8192,quserid,1,NULL);
+  xTaskCreate(initInfrared,"Motion",4096,NULL,1,NULL);
 }
 
 void loop() {
 
-  initInfrared();
-  runInfrared();
-  readTemp(quserid);
-  TurnLight(quserid);
   
+  vTaskDelay(1000);
+  //readTemp(quserid);
+ /*  runInfrared();
+  readTemp(quserid);
+  TurnLight(quserid); */
+  //runInfrared();
 }
 
 

@@ -16,6 +16,6 @@ void initLcd();
 void connectFirebase();
 void initDHT();
 void readTemp(const char* quserid);
-void TurnLight(const char * quserid);
+void TurnLight(void * param);
 
 #endif 

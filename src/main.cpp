@@ -32,6 +32,11 @@ void setup() {
     initLcd();
     initDHT(); //setup DHT temp 
     
+    for (int i = 0; i < 5; i++)
+    {
+      pinMode(i, OUTPUT);
+    }
+    
     connectFirebase();
    
   }

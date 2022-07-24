@@ -2,7 +2,8 @@
 #include "EEPROM.h"
 #include "WiFi.h"
 #include "connectWiFi.h"
-#include <ConnectFirebase.h>
+#include "Firebase.h"
+#include "Infrared.h"
 
 char ssid[32];
 char pass[32];
@@ -30,6 +31,7 @@ void setup() {
     Serial.println("CONNECTED");
     initLcd();
     initDHT(); //setup DHT temp 
+    
     connectFirebase();
    
   }
@@ -53,9 +55,10 @@ void setup() {
 
 void loop() {
 
+  initInfrared();
+  runInfrared();
   readTemp(quserid);
   TurnLight(quserid);
-  initInfrared();
   
 }
 

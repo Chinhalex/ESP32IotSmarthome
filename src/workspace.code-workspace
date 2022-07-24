@@ -19,7 +19,8 @@
 	],
 	"settings": {
 		"files.associations": {
-			"cmath": "cpp"
+			"cmath": "cpp",
+			"*.tcc": "cpp"
 		}
 	}
 }

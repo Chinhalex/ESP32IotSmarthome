@@ -1,3 +1,4 @@
+#include "Firebase.h"
 #include <Firebase_ESP_Client.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -5,37 +6,22 @@
 #include <Wire.h>
 
 
-LiquidCrystal_I2C lcd(0x27,16,2);
-
-#define DHT11_PIN 15
-#define DHTTYPE DHT11
-#define BUZZER_PIN 18
-#define INFRARED_PIN 34
-
-DHT dht(DHT11_PIN, DHTTYPE);
-
-//Provide the token generation process info.
 #include <addons/TokenHelper.h>
-
-//Provide the RTDB payload printing info and other helper functions.
 #include <addons/RTDBHelper.h>
-
-// Insert Firebase project API Key
-#define API_KEY "AIzaSyBP_iz79fpA7izAG4Kq1n7PUPM_zSHJCzQ"
-
-// Insert RTDB URLefine the RTDB URL */
-#define DATABASE_URL "https://smarthomeapp-d2e21-default-rtdb.firebaseio.com/" 
 
 //Define Firebase Data object
 FirebaseData fbdo;
-
+FirebaseData stream;
 FirebaseAuth auth;
 FirebaseConfig config;
 
-int valueInfrared = 0;
 String led_state = "";// LED State
 int led_gpio = 0;
 bool signupOK = false;
+
+
+LiquidCrystal_I2C lcd(0x27,16,2); 
+DHT dht(DHT11_PIN, DHTTYPE); 
 
 void initLcd()
 {
@@ -43,18 +29,6 @@ void initLcd()
   lcd.backlight();
 }
 
-void initInfrared()
-{
-  valueInfrared = analogRead(INFRARED_PIN);
-  Serial.println (valueInfrared); //debug
-  if(valueInfrared <= 100)
-  {
-    digitalWrite (BUILTIN_LED, LOW); //led off
-    //delay(5000);
-  }
-  digitalWrite (BUILTIN_LED, HIGH); //led on - default
-  
-}
 void connectFirebase()
 {
     Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
@@ -67,21 +41,16 @@ void connectFirebase()
         Serial.println("ok");
         signupOK = true;
     }
-    else {
-    Serial.printf("%s\n", config.signer.signupError.message.c_str());
-  }
-
-    /* Assign the callback function for the long running token generation task */
+    else 
+    {
+        Serial.printf("%s\n", config.signer.signupError.message.c_str());
+    }
     config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
 
     Firebase.begin(&config, &auth);
-
-    //Comment or pass false value when WiFi reconnection will control by your code or third party library
     Firebase.reconnectWiFi(true);
-    //  if (Firebase.ready())
-    //      Firebase.RTDB.setString(&fbdo, F("/LivingRoom/Alarm"), F("ON")) ? "ok" : fbdo.errorReason().c_str();
-
 }
+
 
 void initDHT() {
   pinMode(BUZZER_PIN, OUTPUT);
@@ -89,7 +58,8 @@ void initDHT() {
   dht.begin();
 
 }
-void readTemp(String quserid)
+
+void readTemp(const char* quserid)
 {
     float temp = dht.readTemperature();
     float hum = dht.readHumidity();
@@ -132,7 +102,7 @@ void readTemp(String quserid)
     lcd.print(" %");
   }
 }
-void TurnLight(String quserid)
+void TurnLight(const char* quserid)
 {
      if (Firebase.ready())
       {
@@ -145,11 +115,11 @@ void TurnLight(String quserid)
           led_state = Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : "false" ;
           if (led_gpio == i && led_state == "true") {
           Serial.println(String("ESP32-GPIO ") + i + String(" is ON"));
-          digitalWrite(led_gpio, HIGH);
+          digitalWrite(led_gpio, led_gpio == 2 ? LOW : HIGH);
           }
           else if (led_gpio == i && led_state == "false") {
           Serial.println(String("ESP32-GPIO ") + i + String(" is OFF"));
-          digitalWrite(led_gpio, LOW);
+          digitalWrite(led_gpio, led_gpio == 2 ? HIGH : LOW);
           }
           else {
               Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());

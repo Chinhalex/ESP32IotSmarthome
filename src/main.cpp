@@ -22,8 +22,6 @@ void setup() {
     strcpy(pass,EEPROM.readString(32).c_str());
     strcpy(quserid, EEPROM.readString(64).c_str());
   }
-
-
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid,pass);
   delay(1000);
@@ -34,6 +32,7 @@ void setup() {
     for (int i = 0; i <= 5 ; i++)
     {
       pinMode(i, OUTPUT);
+      digitalWrite(i, i == 2 ? HIGH : LOW);
     }
     
     connectFirebase();

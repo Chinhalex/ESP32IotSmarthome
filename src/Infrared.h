@@ -26,6 +26,7 @@ void initInfrared()
   pinMode(led, OUTPUT);
   digitalWrite(led, LOW);
 
+
 }
 
 void runInfrared() {

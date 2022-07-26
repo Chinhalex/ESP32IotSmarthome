@@ -32,7 +32,6 @@ void setup() {
     for (int i = 0; i <= 5 ; i++)
     {
       pinMode(i, OUTPUT);
-      digitalWrite(i, i == 2 ? HIGH : LOW);
     }
     
     connectFirebase();

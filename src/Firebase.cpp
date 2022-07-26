@@ -15,8 +15,7 @@ FirebaseData stream;
 FirebaseAuth auth;
 FirebaseConfig config;
 
-String led_state = "";// LED State
-int led_gpio = 0;
+String led_state = "false";// LED State
 bool signupOK = false;
 
 
@@ -106,7 +105,8 @@ void TurnLight(const char* quserid)
 {
      if (Firebase.ready())
       {
-        for (int i = 0; i < 5; i++)
+        int i;
+        for ( i = 0; i < 5; i++)
         { 
           String urlDevice = String("Users/") + quserid + String("/device/") + i + String ("/status");
           led_state = Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : "false" ;
@@ -118,9 +118,12 @@ void TurnLight(const char* quserid)
           Serial.println(String("ESP32-GPIO ") + i + String(" is OFF"));
           digitalWrite(i, i == 2 ? HIGH : LOW);
           }
-          else {
-              Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
-          }
+          // else {
+          //     Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
+          // }
+          // for(int i = 0; i < 5; i++){
+          // Serial.printf("GPIO %d is %s\n",i ,devices[i] == true ? "true" : "false");
+          // digitalWrite(i, i == 2 ? !devices[i] : devices[i]);
       }
       
     }

@@ -54,12 +54,13 @@ void setup() {
     delay(100);
     server.handleClient();
   }  
+
+  xTaskCreate(initInfrared,"Motion",8192,NULL,2,NULL);
 }
+  
 
 void loop() {
 
-  initInfrared();
-  runInfrared();
   readTemp(quserid);
   TurnLight(quserid);
   

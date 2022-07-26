@@ -17,25 +17,40 @@ void IRAM_ATTR detectsMovement() {
   lastTrigger = millis();
 }
 
-void initInfrared()
+void initInfrared(void *param)
 {
-  pinMode(motionSensor, INPUT_PULLUP);
+  pinMode(motionSensor, INPUT);
+  int stateMotion=0;
+  while(1){
+    stateMotion = digitalRead(motionSensor);
+    //Serial.println(stateMotion);
+    if(stateMotion){
+      Serial.println("MOTION DETECTED!!!");
+      digitalWrite(led, HIGH);
+      delay(5000);
+      digitalWrite(led, LOW);
+      Serial.println("Stopped motion");
+    }
+    
+    vTaskDelay(100);
+  }
+  /* pinMode(motionSensor, INPUT_PULLUP);
   // Set motionSensor pin as interrupt, assign interrupt function and set RISING mode
   attachInterrupt(digitalPinToInterrupt(motionSensor), detectsMovement, RISING);
   // Set LED to LOW
-  pinMode(led, OUTPUT);
-  digitalWrite(led, LOW);
-
+  //pinMode(led, OUTPUT);
+  digitalWrite(led, LOW); */
 
 }
 
 void runInfrared() {
   // Current time
-  now = millis();
+   now = millis();
   // Turn off the LED after the number of seconds defined in the timeSeconds variable
   if(startTimer && (now - lastTrigger > (timeSeconds*1000))) {
     Serial.println("Motion stopped...");
     digitalWrite(led, LOW);
     startTimer = false;
   }
+   
 }

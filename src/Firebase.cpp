@@ -16,6 +16,7 @@ FirebaseAuth auth;
 FirebaseConfig config;
 
 String led_state = "false";// LED State
+int led_gpio = 0;
 bool signupOK = false;
 
 
@@ -105,26 +106,23 @@ void TurnLight(const char* quserid)
 {
      if (Firebase.ready())
       {
-        int i;
-        for ( i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         { 
-          String urlDevice = String("Users/") + quserid + String("/device/") + i + String ("/status");
-          led_state = Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : "false" ;
-          if (i && led_state == "true") {
-          Serial.println(String("ESP32-GPIO ") + i + String(" is ON"));
-          digitalWrite(i, i == 2 ? LOW : HIGH);
-          }
-          else if (i && led_state == "false") {
-          Serial.println(String("ESP32-GPIO ") + i + String(" is OFF"));
-          digitalWrite(i, i == 2 ? HIGH : LOW);
-          }
-          // else {
-          //     Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
-          // }
-          // for(int i = 0; i < 5; i++){
-          // Serial.printf("GPIO %d is %s\n",i ,devices[i] == true ? "true" : "false");
-          // digitalWrite(i, i == 2 ? !devices[i] : devices[i]);
-      }
+            led_gpio = i;
+            String urlDevice = String("Users/") + quserid + String("/device/") + i + String ("/status");
+            led_state = Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : "false" ;
+            if (led_gpio == i && led_state == "true") {
+                Serial.println(String("ESP32-GPIO ") + i + String(" is ON"));
+                digitalWrite(led_gpio, led_gpio == 2 ? LOW : HIGH);
+            }
+            else if (led_gpio == i && led_state == "false") {
+                Serial.println(String("ESP32-GPIO ") + i + String(" is OFF"));
+                digitalWrite(led_gpio, led_gpio == 2 ? HIGH : LOW);
+            }
+            else {
+                Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
+            }
+        }
       
     }
 }

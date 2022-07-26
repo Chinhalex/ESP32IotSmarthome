@@ -72,7 +72,7 @@ void setupAP(void)
   }
   st += "</ol>";
   delay(100);
-  WiFi.softAP("techiesms", "");
+  WiFi.softAP("SmartHome", "");
   Serial.println("softap");
   launchWeb();
   Serial.println("over");

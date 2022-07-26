@@ -44,7 +44,6 @@ void setup() {
 
   Serial.println();
   Serial.println("Waiting.");
-  
 
 
   while ((WiFi.status() != WL_CONNECTED))

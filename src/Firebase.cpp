@@ -63,7 +63,7 @@ void readTemp(const char* quserid)
 {
     float temp = dht.readTemperature();
     float hum = dht.readHumidity();
-    if (temp > 30 )
+    if (temp > 35 )
     {
       digitalWrite(BUZZER_PIN, HIGH); // turn on
       delay (5000);
@@ -106,20 +106,17 @@ void TurnLight(const char* quserid)
 {
      if (Firebase.ready())
       {
-        int i;
-        for (i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         { 
-          led_gpio = i;
-          pinMode(led_gpio, OUTPUT);
           String urlDevice = String("Users/") + quserid + String("/device/") + i + String ("/status");
           led_state = Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : "false" ;
-          if (led_gpio == i && led_state == "true") {
+          if (i && led_state == "true") {
           Serial.println(String("ESP32-GPIO ") + i + String(" is ON"));
-          digitalWrite(led_gpio, led_gpio == 2 ? LOW : HIGH);
+          digitalWrite(i, i == 2 ? LOW : HIGH);
           }
-          else if (led_gpio == i && led_state == "false") {
+          else if (i && led_state == "false") {
           Serial.println(String("ESP32-GPIO ") + i + String(" is OFF"));
-          digitalWrite(led_gpio, led_gpio == 2 ? HIGH : LOW);
+          digitalWrite(i, i == 2 ? HIGH : LOW);
           }
           else {
               Serial.printf("Get string... %s\n", Firebase.RTDB.getString(&fbdo, urlDevice) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
